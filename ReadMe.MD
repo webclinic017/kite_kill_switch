@@ -51,6 +51,7 @@ You can connect with me or reach out to me to learn more about my work and stay 
 - [GitHub](https://github.com/Pranavoro)
 - [Email](mailto:meherpranav5@gmail.com)
 - [Twitter](https://twitter.com/pranav_meher)
+- [Upwork](https://www.upwork.com/freelancers/~01bae9d3b236500043)
 - [Buy me a coffee ☕️](https://buymeacoffee.com/pranavoro)
 
 ## Contributing
