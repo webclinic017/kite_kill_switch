@@ -20,7 +20,7 @@ This project is a simple kill switch for a kite. It is designed to stop overtrad
 
 ## Installation
 1. Clone the repository
-2. Add position_kill_switch.py to your task scheduler or crontab.
+2. Add `position_kill_switch.py` to your task scheduler or crontab.
 
 ## Configuration
 A template configuration file (`credentials_template.json`) is provided in the repository. You can copy the template and rename it to `credentials.json`. Then you can modify the configuration file to suit your needs.
