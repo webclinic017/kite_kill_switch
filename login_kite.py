@@ -1,10 +1,10 @@
 
-import requests, json, pyotp
+import requests
+import json
+import pyotp
 from kiteconnect import KiteConnect
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
-import os
-
 import os
 import traceback
 import json
