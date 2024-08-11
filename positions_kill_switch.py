@@ -129,7 +129,7 @@ if __name__ == '__main__':
                 if MTM <= float(get_client_doc_from_json(client_id)['loss_threshold']) * -1:
                     cancel_all_orders()
                     exit_all_positions()
-                    kill_switch.main(client_id)
+                    # kill_switch.main(client_id) # This will turn off the Segment. (To Turn on, remove the comment (the hash and space before kill_switch.main(client_id)))
     except Exception as e:
         logger.error(f"Error reading credentials.json: {traceback.format_exc()}")
     end_time = time.time()
