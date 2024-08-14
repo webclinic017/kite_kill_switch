@@ -8,6 +8,9 @@ import json
 import login_kite
 import kill_switch
 import get_logger
+import datetime as dt
+import pytz
+import sqlite3
 
 logger = get_logger.get_logger("positions_kill_switch")
 
@@ -37,6 +40,30 @@ def save_field_to_json(client_id, field, value):
     except Exception as e:
         logger.error(f"Error saving field to JSON for {client_id}: {traceback.format_exc()}")
 
+def save_data_to_sqllite(client_id, field, value):
+    try:
+        conn = sqlite3.connect('client_data.db')
+        c = conn.cursor()
+        c.execute(f'''CREATE TABLE IF NOT EXISTS clients (client_id TEXT PRIMARY KEY, loss_threshold REAL);''')
+        c.execute(f"INSERT OR REPLACE INTO clients (client_id, {field}) VALUES (?, ?)", (client_id, value))
+        conn.commit()
+        conn.close()
+        logger.info(f"Successfully saved {field} for {client_id} in SQLite")
+    except:
+        logger.error(f"Error saving field to SQLite for {client_id}: {traceback.format_exc()}")
+        traceback.print_exc()
+
+def get_data_from_sqllite(client_id, field):
+    try:
+        conn = sqlite3.connect('client_data.db')
+        c = conn.cursor()
+        c.execute(f"SELECT {field} FROM clients WHERE client_id = ?", (client_id,))
+        value = c.fetchone()[0]
+        conn.close()
+        return value
+    except:
+        logger.error(f"Error fetching field from SQLite for {client_id}: {traceback.format_exc()}")
+        traceback.print_exc()
 
 def get_kite_client(client_id):
     api_key = get_client_doc_from_json(client_id)['api_key']
@@ -117,19 +144,36 @@ def exit_all_positions():
 if __name__ == '__main__':
     start_time = time.time()
     try:
+        save_loss_threshold = False
+        ist = pytz.timezone('Asia/Kolkata')
+        now = dt.datetime.now(ist)
+        if now.hour == 9 and now.minute == 15 and now.second < 20:
+            save_loss_threshold = True
+
+
         json_file = os.path.join(current_file_path, 'credentials.json')
         with open(json_file) as f:
             data = json.load(f)
             data = dict(data)
             for client_id in data.keys():
+                if save_loss_threshold:
+                    LT = get_client_doc_from_json(client_id)['loss_threshold']
+                    if type(LT) in [int, float]:
+                        save_data_to_sqllite(client_id, 'loss_threshold', LT)
+                    else:
+                        logger.error(f"Loss Threshold for {client_id} is not a number: {LT}")
+
+                loss_threshold = float(get_data_from_sqllite(client_id, 'loss_threshold'))
                 kite = get_kite_client(client_id)
                 MTM = 0.0
                 MTM = float(get_positions_mtm())
-                logger.info(f"Current MTM for {client_id}: {MTM}")
-                if MTM <= float(get_client_doc_from_json(client_id)['loss_threshold']) * -1:
+                logger.info(f"Current MTM for {client_id}: {MTM} ; Loss Threshold: {loss_threshold}")
+
+                if MTM <= loss_threshold * -1:
                     cancel_all_orders()
                     exit_all_positions()
                     # kill_switch.main(client_id) # This will turn off the Segment. (To Turn on, remove the comment (the hash and space before kill_switch.main(client_id)))
+            save_loss_threshold = False
     except Exception as e:
         logger.error(f"Error reading credentials.json: {traceback.format_exc()}")
     end_time = time.time()
