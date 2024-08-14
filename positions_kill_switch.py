@@ -42,7 +42,7 @@ def save_field_to_json(client_id, field, value):
 
 def save_data_to_sqllite(client_id, field, value):
     try:
-        conn = sqlite3.connect('client_data.db')
+        conn = sqlite3.connect(os.path.join(current_file_path,'client_data.db'))
         c = conn.cursor()
         c.execute(f'''CREATE TABLE IF NOT EXISTS clients (client_id TEXT PRIMARY KEY, loss_threshold REAL);''')
         c.execute(f"INSERT OR REPLACE INTO clients (client_id, {field}) VALUES (?, ?)", (client_id, value))
@@ -55,7 +55,7 @@ def save_data_to_sqllite(client_id, field, value):
 
 def get_data_from_sqllite(client_id, field):
     try:
-        conn = sqlite3.connect('client_data.db')
+        conn = sqlite3.connect(os.path.join(current_file_path,'client_data.db'))
         c = conn.cursor()
         c.execute(f"SELECT {field} FROM clients WHERE client_id = ?", (client_id,))
         value = c.fetchone()[0]
