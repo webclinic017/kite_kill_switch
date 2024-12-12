@@ -27,8 +27,12 @@ def get_totp(userid):
 def disable_segment(client_id):
     try:
         password = get_client_doc_from_json(client_id)['password']
+        #! Get to the console - segment activation page
         driver.get("https://console.zerodha.com/account/segment-activation")
         time.sleep(2)
+       
+        
+        #! Login
         driver.find_element(by=By.ID,value="userid").send_keys(client_id)
         time.sleep(1)
         driver.find_element(by=By.ID,value="password").send_keys(password)
@@ -37,15 +41,23 @@ def disable_segment(client_id):
         time.sleep(1)
         driver.find_element(by = By.XPATH, value = "/html/body/div[1]/div/div/div[1]/div[2]/div/div/form/div[1]/input").send_keys(get_totp(client_id))
         time.sleep(5)
-        driver.find_element(by = By.XPATH, value = "/html/body/div[2]/div[2]/div/div/div/div[2]/div[1]/div[2]/div[4]/div[1]/div/div/div[2]/div[3]/div/div/div/label").click()
+
+
+        #! Disable the NSE-FO segment.
+        #! To add different segments, you can always copy xpath from inspecting element and replace below xpath.
+        driver.find_element(by = By.XPATH, value = "/html/body/div[2]/div[2]/div/div/div/div[2]/div[1]/div[2]/div[4]/div[1]/div[2]/div/div/div/div[3]/div/div/div/label").click()
         time.sleep(1)
+
+        #! Clicking on continue
         driver.find_element(by = By.XPATH, value = "/html/body/div[2]/div[2]/div/div/div/div[2]/div[1]/div[2]/div[4]/div[1]/button").click()
         time.sleep(5)
+
+        #! Clicking on confirm-page continue button
         driver.find_element(by = By.XPATH, value = "/html/body/div[2]/div[2]/div/div/div[2]/div/div/div/div/form/div[2]/button[2]").click()
         time.sleep(10)
+
+        #! Exit the browser
         driver.quit()
-        # driver.implicitly_wait(10)
-        # /html/body/div[2]/div[2]/div/div/div/div[2]/div[1]/div[2]/div[4]/div[1]/div/div/div[2]/div[3]/div/div/div/label
     except:
         traceback.print_exc()
 
@@ -67,5 +79,5 @@ if __name__ == '__main__':
     options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(options=options)
     # options.add_argument("--headless")
-    disable_segment("XQQ563")
+    disable_segment("<your client id here>")
     # driver.quit()
