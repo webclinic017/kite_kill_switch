@@ -127,12 +127,13 @@ def exit_all_positions():
         positions = kite.positions()
         open_positions = [position for position in positions['net'] if ('NIFTY' in position['tradingsymbol'] or 'BANKNIFTY' in position['tradingsymbol']) and position['quantity'] != 0]
         for position in open_positions:
+            transaction_type = 'SELL' if position['quantity'] > 0 else 'BUY'
             logger.info(f"Exiting position: {position}")
             kite.place_order(
                 variety='regular',
                 exchange=position['exchange'],
                 tradingsymbol=position['tradingsymbol'],
-                transaction_type='SELL',
+                transaction_type=transaction_type,
                 quantity=abs(position['quantity']),
                 order_type='MARKET',
                 product='NRML'
